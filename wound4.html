@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wound 4 🩹</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --peri:           #b8bef5;
+      --peri-light:     #dde0ff;
+      --sky:            #bdd8f7;
+      --sky-light:      #dceffe;
+      --lilac:          #d4c8f5;
+      --white:          #f7f8ff;
+      --text-dark:      #2c3060;
+      --text-mid:       #5058a0;
+      --text-soft:      #8890cc;
+      --correct-bg:     #eaffef;
+      --correct-border: #4ade80;
+      --correct-text:   #14532d;
+      --wrong-bg:       #fff1f1;
+      --wrong-border:   #f87171;
+      --wrong-text:     #7f1d1d;
+      --glass:          rgba(255,255,255,0.26);
+      --glass-border:   rgba(255,255,255,0.52);
+      --radius:         20px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(145deg, #a8b4f0 0%, #bcc5f8 30%, #9baee8 60%, #b0a8e8 100%);
+      color: var(--text-dark);
+      overflow-x: hidden;
+      padding-bottom: 60px;
+    }
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.22;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #c8d8f8, #b8bef5);
+      top: -120px; left: -100px;
+      animation: drift 14s ease-in-out infinite alternate;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, #d4c8f5, #bdd8f7);
+      bottom: -100px; right: -80px;
+      animation: drift 18s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(30px,20px) scale(1.08); }
+    }
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 44px 20px 0;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.72);
+      text-decoration: none;
+      margin-bottom: 28px;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .back-link:hover { color: var(--white); transform: translateX(-3px); }
+    .portal-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+    .portal-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.9rem, 5vw, 3rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.15;
+      text-shadow: 0 2px 24px rgba(60,80,180,0.25);
+    }
+    .portal-header h1 span {
+      background: linear-gradient(90deg, var(--peri-light), var(--sky-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .quiz-card {
+      background: rgba(255,255,255,0.97);
+      border-radius: 24px;
+      box-shadow: 0 16px 56px rgba(60,80,180,0.18);
+      padding: 32px 32px 28px;
+    }
+    .progress-bar-wrap {
+      background: #e8ecff;
+      border-radius: 999px;
+      height: 8px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    #progress-bar {
+      background: linear-gradient(90deg, var(--sky), var(--peri));
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-soft);
+      margin-bottom: 28px;
+    }
+    .q-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .q-number {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      background: var(--peri-light);
+      border-radius: 999px;
+      padding: 4px 12px;
+    }
+    .q-topic {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+    .sata-label {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #5058a0;
+      background: #eef0ff;
+      border-radius: 999px;
+      padding: 3px 10px;
+      margin-bottom: 10px;
+    }
+    .q-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.06rem;
+      font-weight: 500;
+      line-height: 1.6;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+    }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 13px 15px;
+      border: 2px solid #dde2ff;
+      border-radius: 14px;
+      background: #f7f8ff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      font-size: 0.91rem;
+      font-family: 'DM Sans', sans-serif;
+      width: 100%;
+      color: var(--text-dark);
+    }
+    .option:hover:not(.locked) { border-color: var(--peri); background: #eef0ff; }
+    .option.selected  { border-color: var(--peri); background: #eef0ff; }
+    .option.correct   { border-color: var(--correct-border); background: var(--correct-bg); }
+    .option.wrong     { border-color: var(--wrong-border);   background: var(--wrong-bg); }
+    .option.locked    { cursor: default; }
+    .option.missed    { border-color: var(--correct-border); background: var(--correct-bg); opacity: 0.75; }
+    .option-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #dde2ff;
+      font-weight: 700;
+      font-size: 0.78rem;
+      flex-shrink: 0;
+      color: var(--text-mid);
+      transition: background 0.2s, color 0.2s;
+    }
+    .option.selected .option-icon { background: var(--peri); color: var(--text-dark); }
+    .option.correct .option-icon  { background: var(--correct-border); color: #fff; }
+    .option.wrong .option-icon    { background: var(--wrong-border); color: #fff; }
+    .option.missed .option-icon   { background: var(--correct-border); color: #fff; }
+    .option-text { padding-top: 3px; line-height: 1.5; }
+    #rationale-box {
+      display: none;
+      margin-top: 16px;
+      background: #f0f4ff;
+      border-left: 3px solid var(--peri);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 0.86rem;
+      line-height: 1.65;
+      color: var(--text-dark);
+    }
+    #rationale-box.show { display: block; }
+    .rationale-label {
+      font-weight: 700;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      margin-bottom: 6px;
+    }
+    .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+    .btn {
+      flex: 1;
+      padding: 13px;
+      border: none;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), filter 0.2s, box-shadow 0.2s;
+    }
+    #submit-btn {
+      background: linear-gradient(135deg, var(--peri), var(--lilac));
+      color: var(--text-dark);
+      box-shadow: 0 4px 18px rgba(140,150,230,0.35);
+    }
+    #next-btn {
+      background: linear-gradient(135deg, var(--sky), var(--peri));
+      color: var(--text-dark);
+      box-shadow: 0 4px 18px rgba(120,160,230,0.35);
+      display: none;
+    }
+    .btn:hover { transform: translateY(-2px) scale(1.01); filter: brightness(1.06); }
+    .btn:active { transform: scale(0.98); }
+    .results-screen { display: none; text-align: center; }
+    .results-screen.active { display: block; }
+    .results-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .score-big {
+      font-family: 'Playfair Display', serif;
+      font-size: 5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--peri), #8891e8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin: 16px 0 10px;
+    }
+    .score-sub { font-size: 1rem; color: var(--text-soft); margin-bottom: 8px; }
+    .score-detail { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin: 14px 0 24px; }
+    .score-pill { background: #f0f4ff; border-radius: 999px; padding: 6px 18px; font-size: 0.82rem; font-weight: 600; color: var(--text-mid); }
+    .score-pill.green { background: var(--correct-bg); color: var(--correct-text); }
+    .score-pill.red   { background: var(--wrong-bg);   color: var(--wrong-text); }
+    .review-section { margin-top: 28px; text-align: left; }
+    .review-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 14px;
+    }
+    .review-item {
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      font-size: 0.83rem;
+      line-height: 1.5;
+      border-left: 3px solid;
+    }
+    .r-correct { background: var(--correct-bg); border-color: var(--correct-border); }
+    .r-wrong   { background: var(--wrong-bg);   border-color: var(--wrong-border); }
+    .review-q  { color: var(--text-dark); margin-bottom: 4px; }
+    .restart-btn {
+      padding: 13px 40px;
+      background: linear-gradient(135deg, var(--peri), var(--lilac));
+      color: var(--text-dark);
+      border: none;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(140,150,230,0.35);
+      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), filter 0.2s;
+      margin-bottom: 28px;
+    }
+    .restart-btn:hover { transform: translateY(-2px) scale(1.04); filter: brightness(1.06); }
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(22px);  } to { opacity:1; transform:translateY(0); } }
+    @media (max-width: 600px) {
+      .wrapper   { padding: 28px 12px 0; }
+      .quiz-card { padding: 20px 14px 18px; border-radius: 18px; }
+      .q-text    { font-size: 1rem; }
+      .option    { font-size: 0.86rem; padding: 11px 12px; }
+      .score-big { font-size: 4rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <a href="index.html" class="back-link">← Back to Wound Care Hub</a>
+  <div class="portal-header">
+    <div class="header-badge">🩹 Wound Care &nbsp;·&nbsp; Quiz 4</div>
+    <h1>Wound <span>4</span></h1>
+  </div>
+  <div class="quiz-card">
+    <div class="progress-bar-wrap"><div id="progress-bar"></div></div>
+    <div class="progress-label">
+      <span id="q-counter">Question 1 of 65</span>
+      <span>Score: <span id="live-score">0</span></span>
+    </div>
+    <div id="quiz-screen">
+      <div class="q-meta">
+        <span class="q-number" id="q-num-label">Question 1</span>
+        <span class="q-topic" id="q-topic-label"></span>
+      </div>
+      <div id="sata-badge" class="sata-label" style="display:none;">✦ Select All That Apply</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options-container"></div>
+      <div id="rationale-box">
+        <div class="rationale-label">💡 Rationale</div>
+        <div id="rationale-text"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+        <button class="btn" id="next-btn" onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
+    <div class="results-screen" id="results-screen">
+      <div class="results-title">Quiz Complete! 🩹</div>
+      <div class="score-big" id="res-pct">0%</div>
+      <div class="score-sub" id="res-sub"></div>
+      <div class="score-detail">
+        <span class="score-pill green">✓ <span id="res-correct">0</span> correct</span>
+        <span class="score-pill red">✗ <span id="res-wrong">0</span> incorrect</span>
+      </div>
+      <div id="pass-fail-badge"></div>
+      <button class="restart-btn" onclick="restartQuiz()">Try Again</button>
+      <div class="review-section" id="review-section"></div>
+    </div>
+  </div>
+</div>
+<script>
+const questions = [
+  {"n": 1, "topic": "Diabetic Foot Care", "type": "single", "text": "A patient with type 2 diabetes asks if they can visit a local nail salon to have their thick plantar calluses shaved down to prevent foot ulcers. Which is the best evidence-based response by the nurse?", "options": ["You should apply lotion between your toes daily to soften the calluses instead.", "You need to see a podiatrist for safe plantar callus debridement.", "You can use a pumice stone carefully at home instead of going to the salon.", "Calluses serve as a protective barrier on the heel and should always be left intact."], "answer": 1, "rationale": "<strong>Patients with diabetes must see a podiatrist for safe plantar callus debridement</strong> to prevent accidental tissue damage, severe infection, and amputations. Lotion between the toes creates a moist breeding ground for fungal/bacterial infection and is contraindicated in diabetic patients. Home callus shaving is dangerous due to lack of protective sensation. While stable heel eschar should be left intact, plantar calluses cause abnormal mechanical stress and must be professionally debrided."},
+  {"n": 2, "topic": "Fistula Management", "type": "single", "text": "A patient with a history of an abdominal abscess reports passing stool from their vagina. The nurse suspects a rectovaginal fistula. What is the nurse's priority clinical intervention?", "options": ["Prepare the patient for the surgical creation of an arteriovenous (AV) fistula.", "Implement aggressive measures to protect the perineal skin from breakdown.", "Assess the patient's coping mechanisms regarding altered body image.", "Restrict the patient's oral fluid intake to decrease the fistula effluent."], "answer": 1, "rationale": "A rectovaginal fistula allows fecal drainage to exit the vagina, dramatically increasing risk of skin breakdown and sepsis. The <strong>immediate priority is protecting the perineal skin from breakdown</strong> (Moisture-Associated Skin Damage). An AV fistula is surgically created for dialysis access — it does not treat a rectovaginal fistula. Body image assessment is a valid but secondary psychosocial intervention. Restricting fluids causes systemic dehydration and does not resolve the anatomical defect."},
+  {"n": 3, "topic": "Wound Drainage Measurement", "type": "single", "text": "A patient has a heavily draining abdominal wound. The provider orders strict monitoring of wound exudate output. What is the most accurate method for the nurse to measure the drainage?", "options": ["Count the number of saturated 4x4 gauze pads removed during each shift.", "Wring out the saturated dressings into a graduated cylinder.", "Weigh the soiled dressings — 1 gram equals 1 mL of drainage.", "Outline the drainage on the dressing with a pen, date it, and monitor for expansion."], "answer": 2, "rationale": "The most accurate measurement of wound drainage is to <strong>weigh the soiled dressings, using the standard conversion of 1 gram = 1 mL</strong>. Counting gauze pads or outlining drainage provides only a subjective estimate. Wringing out dressings is biologically unsafe, destroys the dressing, and loses fluid to evaporation and absorption."},
+  {"n": 4, "topic": "NPWT Emergency", "type": "single", "text": "A nurse notes bright red blood rapidly filling the NPWT connective tubing and collection canister of a patient with a Stage 4 pressure injury. What is the nurse's priority action?", "options": ["Clamp the connective tubing to stop the flow of blood into the canister.", "Turn off the negative pressure unit immediately.", "Notify the wound care specialist and the primary provider.", "Assess the patient's vital signs for indications of hypovolemic shock."], "answer": 1, "rationale": "NPWT applies suction to the wound bed and is strictly contraindicated with active bleeding. Bright red blood filling the canister means the machine is actively suctioning blood out of the patient. The <strong>absolute priority is to turn off the negative pressure unit immediately</strong> to stop the hemorrhage. Clamping the tubing without turning off the machine can cause malfunction. Notifying providers and assessing vital signs are critical next steps — but only after the device pulling blood from the patient has been stopped."},
+  {"n": 5, "topic": "Bandage Techniques", "type": "single", "text": "A nurse is applying a roller bandage to a patient's residual limb (stump) following an amputation. Which bandage turn technique is best for this specific anatomical part?", "options": ["Spiral turn", "Figure-of-eight turn", "Recurrent bandage turn", "Circular turn"], "answer": 2, "rationale": "A <strong>recurrent bandage turn</strong> is specifically used for rounded body parts such as fingers, the head, and residual limbs (stumps). It involves anchoring the bandage, passing it back and forth over the tip, then finishing with a figure-of-eight turn. Spiral turns = cylindrical parts (wrist, trunk). Figure-of-eight = joints (knee, elbow, ankle). Circular = anchoring only."},
+  {"n": 6, "topic": "Pressure Injury Prevention", "type": "single", "text": "A patient is at high risk for a sacral pressure injury. The family brings in a commercial foam 'donut' ring cushion. What is the nurse's best action?", "options": ["Thank the family and place the cushion firmly on the patient's chair.", "Instruct the family that donut-type devices should not be used and provide a gel cushion instead.", "Cover the donut cushion with a low-friction textile to prevent shearing before use.", "Allow the patient to use the cushion for no more than 15 minutes at a time."], "answer": 1, "rationale": "The nurse must instruct the family that <strong>donut-type devices must never be used</strong>. These devices concentrate pressure on the surrounding tissue, increase venous congestion, and dramatically increase the risk of pressure injury. Even limiting use to 15 minutes or covering it with a textile does not mitigate the severe localized pressure and venous pooling caused by the hole in the center. A gel cushion is the appropriate alternative."},
+  {"n": 7, "topic": "Clinical Judgment — Prioritization", "type": "single", "text": "A patient with a suspected deep wound infection has orders for a wound culture and a first dose of IV broad-spectrum antibiotics. The patient reports severe wound pain (8/10). Which sequence of actions is the priority?", "options": ["Administer the IV antibiotic → administer pain medication → obtain the wound culture.", "Administer pain medication → obtain the wound culture → administer the IV antibiotic.", "Obtain the wound culture → administer pain medication → administer the IV antibiotic.", "Administer pain medication → administer the IV antibiotic → obtain the wound culture."], "answer": 1, "rationale": "The correct sequence is <strong>Pain Med → Culture → IV Antibiotic</strong>. Analgesics should be given 30–45 minutes before a painful procedure. The wound culture must be obtained before the first antibiotic dose because antibiotics alter microbial growth and ruin the diagnostic validity of the culture. Administering antibiotics first destroys the value of the culture entirely. Obtaining the culture before pain meds subjects the patient to unnecessary severe pain."},
+  {"n": 8, "topic": "Risk Assessment Tools", "type": "single", "text": "A trauma patient in the ICU is receiving mechanical ventilation and vasopressors. Why should the nurse use the Jackson/Cubbin scale rather than the Braden Scale for this patient?", "options": ["The Braden scale evaluates mental status, which cannot be assessed in an intubated patient.", "The Jackson/Cubbin scale uniquely includes hemodynamic status and oxygen requirements.", "The Braden scale is known to severely underpredict pressure injury risk in critically ill trauma patients.", "The Jackson/Cubbin scale specifically evaluates the risk of medical device-related friction injuries."], "answer": 1, "rationale": "The <strong>Jackson/Cubbin Pressure Area Risk Calculator was designed specifically for the ICU</strong> and accurately includes hemodynamic status, respiratory status, and oxygen requirements — such as vasopressors and mechanical ventilation — that the Braden Scale does not capture. The Braden scale actually <em>overpredicts</em> risk in critically ill patients (not underpredicts), leading to alarm fatigue. Mental status can be assessed in intubated patients using the Braden scale."},
+  {"n": 9, "topic": "Rebound Phenomenon", "type": "single", "text": "A patient with a localized leg infection is receiving hot water soaks. After 45 minutes, the nurse notes the skin is pale, severely congested, and vasoconstricted. What physiological mechanism explains this finding?", "options": ["The soak temperature dropped below 105°F.", "The inflammatory response is peaking due to therapeutic heat.", "The rebound phenomenon has occurred from prolonged heat application.", "The patient has developed an acute systemic infection."], "answer": 2, "rationale": "The <strong>rebound phenomenon</strong> occurs when heat is applied beyond 20–30 minutes. The body adapts, and instead of continued vasodilation, tissue congestion and profound vasoconstriction occur — the exact opposite of the intended effect. A temperature drop would simply be tepid. The inflammatory response presents with vasodilation (redness/heat), not pallor and vasoconstriction. Systemic infection would cause systemic signs (fever, tachycardia), not localized pallor."},
+  {"n": 10, "topic": "Sitz Bath Safety", "type": "single", "text": "A postpartum patient receiving a sitz bath reports feeling faint and nauseous after 10 minutes. The nurse notes the patient is pale with a rapid pulse. What is the initial nursing action?", "options": ["Add cooler water to the basin to counteract the vasodilation.", "Discontinue the bath immediately and assist the patient out of the tub.", "Reassure the patient that this is a normal, expected response.", "Take the patient's blood pressure while they remain seated in the bath."], "answer": 1, "rationale": "A sitz bath causes generalized peripheral vasodilation that can shift blood volume away from the brain, causing systemic hypotension, faintness, pallor, and rapid pulse. This is a safety hazard — the <strong>priority is to discontinue therapy and assist the patient out of the tub immediately</strong>. Adding cooler water or taking blood pressure delays removing the patient from a dangerous environment where they could lose consciousness and fall or drown."},
+  {"n": 11, "topic": "Wound Complications", "type": "single", "text": "A patient 4 days post-op from abdominal surgery reports a sudden 'giving way' in their incision after vomiting. The nurse observes a significant increase in serosanguineous fluid and separated wound edges, but no internal organs are visible. How should the nurse document this event?", "options": ["Wound Evisceration", "Wound Dehiscence", "Tertiary Intention", "Internal Hemorrhage"], "answer": 1, "rationale": "<strong>Dehiscence</strong> is the partial or total separation of wound layers. Hallmark findings: sudden increase in serosanguineous drainage (classic on days 4–5) and the patient reporting something has 'given way' — often after straining or vomiting. Evisceration specifically involves protrusion of visceral organs through the opening, which did not occur here. Tertiary intention is a purposeful delayed surgical closure. Internal hemorrhage presents with swelling, distension, and hypovolemic shock."},
+  {"n": 12, "topic": "Evisceration Care", "type": "single", "text": "Following a wound evisceration, the nurse covers the protruding bowel with sterile towels soaked in sterile normal saline. What is the primary pathophysiological rationale for using moistened rather than dry dressings?", "options": ["To prevent the viscera from drying out and necrosing.", "To mechanically debride the exposed bowel surface of bacteria.", "To cause vasoconstriction and stop active bleeding from the abdominal cavity.", "To prepare the site for an emergency NPWT drape."], "answer": 0, "rationale": "The primary purpose of covering eviscerated organs with <strong>sterile saline-soaked towels is to prevent the delicate tissues from drying out</strong>, which leads directly to ischemia and necrosis. Mechanically debriding exposed bowel would cause severe trauma and perforation. Saline-soaked dressings do not cause vasoconstriction. NPWT is strictly contraindicated over exposed visceral organs."},
+  {"n": 13, "topic": "Ulcer Differentiation", "type": "single", "text": "A patient has a diabetic foot ulcer on the plantar surface of the metatarsal head. What specific assessment finding differentiates this ulcer from a typical arterial ulcer?", "options": ["The ulcer has a pale wound bed with no drainage.", "The ulcer is surrounded by a thick rim of calloused tissue.", "The patient reports severe pain that decreases when the legs are dangled.", "The ulcer has perfectly round, smooth, 'punched out' margins."], "answer": 1, "rationale": "Diabetic foot ulcers commonly occur on pressure points and are uniquely <strong>surrounded by a thick rim of calloused tissue</strong> due to mechanical stress and autonomic neuropathy. A pale wound bed with no drainage, round 'punched-out' margins, and severe pain relieved by dangling are all classic features of an <em>arterial</em> ulcer. Diabetic ulcers are often painless due to sensory neuropathy."},
+  {"n": 14, "topic": "Wound Dressings", "type": "single", "text": "What is the primary therapeutic purpose of a damp-to-damp 4x4 gauze dressing application on a wound with thick slough?", "options": ["To maintain a completely dry wound bed to prevent periwound maceration.", "To deliver continuous topical antibiotic solutions to the wound surface.", "To mechanically debride the wound as the dressing is removed.", "To seal the wound surface tightly and prevent evaporation of exudate."], "answer": 2, "rationale": "Damp-to-damp (wet-to-dry) 4x4 gauze dressings are used specifically for <strong>mechanical debridement</strong>. As the damp gauze dries, it adheres to slough and necrotic tissue; when removed, it mechanically pulls the dead tissue out of the wound bed. These dressings do not maintain a dry bed, deliver antibiotics, or seal the wound to prevent evaporation (occlusive dressings like hydrocolloids do that)."},
+  {"n": 15, "topic": "Drainage Progression", "type": "single", "text": "Which progression of drainage color indicates normal, expected physiological healing?", "options": ["Sanguineous → Serosanguineous → Serous", "Serous → Sanguineous → Purulent", "Serosanguineous → Sanguineous → Serous", "Purulent → Serosanguineous → Sanguineous"], "answer": 0, "rationale": "Normal physiological healing follows this drainage progression: <strong>Sanguineous (bloody) → Serosanguineous (pink/watery) → Serous (clear)</strong>. Drainage begins bloody from fresh injury, becomes pinkish-watery as bleeding slows and serum mixes with RBCs, then clears as healing progresses. Moving backward from serous to sanguineous indicates fresh trauma or hemorrhage. Purulent drainage is <em>never</em> a normal stage of healing — it always indicates infection."},
+  {"n": 16, "topic": "RYB Classification", "type": "single", "text": "A wound bed has 2 cm of black eschar, surrounded by yellow slough, with a small rim of red granulation tissue. Using the RYB classification system, what is the first clinical priority?", "options": ["Cleanse the yellow slough.", "Facilitate debridement of the black eschar.", "Protect the red granulation tissue with a moist dressing.", "Swab culture the yellow slough."], "answer": 1, "rationale": "The RYB system has a strict hierarchy for mixed wounds: treat the most severe color first — <strong>Black (debride) → Yellow (cleanse) → Red (protect)</strong>. The 2-cm black eschar must be debrided first. Cleansing yellow slough is the second step, and protecting red granulation tissue is third. Swabbing necrotic slough for culture is contraindicated — cultures must be taken from clean viable tissue to avoid culturing surface contaminants."},
+  {"n": 17, "topic": "Penrose Drain Safety", "type": "single", "text": "After shortening a Penrose drain by 1 inch (pulling it out and cutting the end), what is the most critical safety action the nurse must take?", "options": ["Suture the newly cut drain securely to the patient's skin.", "Compress the drain firmly to re-establish the negative pressure vacuum.", "Place a new sterile safety pin or tab at the base of the drain near the skin.", "Flush the remaining drain tube with 10 mL of sterile saline to ensure patency."], "answer": 2, "rationale": "A Penrose drain is a soft, flexible, open rubber tube that drains passively — it is <em>not</em> sutured in place. When shortening it, the nurse must <strong>place a new sterile safety pin or tab at the base (near the skin) before cutting</strong>. Without the pin, the soft drain can slip completely back into the patient's body cavity and require surgical retrieval. Penrose drains do not have collection bulbs and cannot create negative pressure — that applies to JP and Hemovac drains."},
+  {"n": 18, "topic": "Transparent Film Dressings", "type": "single", "text": "A nurse selects a transparent film dressing (e.g., Tegaderm) for a patient's Stage 1 pressure injury on their sacrum. What is the primary advantage of this dressing for this wound?", "options": ["It absorbs large amounts of serous drainage from the blister.", "It allows visual assessment of the erythema while protecting the skin from friction.", "It mechanically debrides the nonblanchable erythematous tissue.", "It delivers enzymatic debridement directly to the localized area."], "answer": 1, "rationale": "Transparent film dressings are semipermeable, waterproof, and clear. For a Stage 1 pressure injury (nonblanchable erythema with intact skin), their primary advantage is <strong>allowing the nurse to visually assess the redness while acting as a 'second skin' to protect the area from further friction and shear</strong>. They have absolutely no absorptive capacity. Because Stage 1 involves intact skin, there is no dead tissue to mechanically or enzymatically debride."},
+  {"n": 19, "topic": "Post-Staple Removal", "type": "single", "text": "A nurse is removing surgical staples from a healed abdominal incision. Which action ensures the wound edges are adequately supported after staple removal?", "options": ["Instruct the patient to maintain a strictly supine position for 48 hours.", "Apply a thick hydrocolloid dressing over the entire incision.", "Apply adhesive wound-closure strips (Steri-Strips) across the incision.", "Leave the wound open to air to promote immediate crust formation."], "answer": 2, "rationale": "After staple removal, scar tissue is only approximately 80% as strong as normal tissue and can stretch or dehisce. <strong>Applying Steri-Strips across the incision provides the necessary mechanical support</strong> to hold the wound edges together as collagen remodeling continues. Strict supine positioning for 48 hours promotes complications like pneumonia and DVT. Hydrocolloids are for unapproximated draining wounds, not closed incisions. Leaving it open to air removes structural support needed immediately after removal."},
+  {"n": 20, "topic": "Alginate Dressings", "type": "single", "text": "The nurse is applying an alginate dressing to a heavily draining venous ulcer. Which action is absolutely essential when using this product?", "options": ["Moisten the alginate with sterile saline before applying it to the wound.", "Apply a secondary dressing over the alginate to secure it in place.", "Ensure the alginate securely overlaps the intact periwound skin.", "Change the alginate dressing once every 7 days regardless of saturation."], "answer": 1, "rationale": "Alginates are highly absorbent dressings that turn into a gel when they absorb heavy exudate. Because they do not have an adhesive border and are not occlusive on their own, they <strong>require a secondary cover dressing to secure them</strong>. Never moisten alginates before application — their entire purpose is to absorb excess moisture. They should not overlap intact periwound skin as the gel can cause maceration of healthy tissue. They are changed when saturated (typically 1–3 days), not left for 7 days."},
+  {"n": 21, "topic": "Wound Cleansing Technique", "type": "single", "text": "A nurse is performing a dressing change on a deep wound healing by secondary intention. Which cleaning technique demonstrates correct medical asepsis?", "options": ["Clean from top to bottom in straight, parallel lines.", "Use a vigorous back-and-forth scrubbing motion to remove biofilm.", "Clean in full or half circles, beginning in the center and working outward.", "Clean from the surrounding intact skin inward toward the center of the wound."], "answer": 2, "rationale": "For wounds with unapproximated edges (secondary intention), the correct technique is to clean <strong>in full or half circles, beginning in the center and working outward</strong>. This pushes microorganisms away from the delicate wound bed toward the less vulnerable intact skin. Top-to-bottom parallel lines = closed surgical incision technique. Vigorous scrubbing destroys fragile granulation tissue. Cleaning outside-in drags skin flora directly into the open wound."},
+  {"n": 22, "topic": "Wound Documentation", "type": "single", "text": "During a wound assessment, the nurse inserts a sterile applicator under the wound edge and notes a hollow space between the skin surface and the wound bed from the 12 o'clock to 3 o'clock positions. How should the nurse document this finding?", "options": ["Undermining", "Tunneling", "Sinus tract", "Epibole"], "answer": 0, "rationale": "<strong>Undermining</strong> is a hollow space or pocket between the skin surface and the underlying wound bed (like a shelf or lip), often resulting from tissue death due to shear. It is documented using clock face positions. Tunneling (or sinus tract) is a specific narrow passageway or channel that extends deep into the tissue in a specific direction. Epibole refers to rolled or curled wound edges, not a hollow space."},
+  {"n": 23, "topic": "Lab Values & Healing", "type": "single", "text": "A nurse is reviewing laboratory results of an older adult patient with a chronic venous ulcer. Which lab value provides the most accurate indication of high risk for delayed wound healing due to malnutrition?", "options": ["Hemoglobin A1c of 5.6%", "Total lymphocyte count of 2,500/mm³", "Fasting blood glucose of 90 mg/dL", "Prealbumin of 12 mg/dL"], "answer": 3, "rationale": "<strong>Prealbumin is the most sensitive indicator of acute nutritional status and protein synthesis.</strong> A normal level is 15–36 mg/dL; a level of 12 mg/dL clearly indicates protein malnutrition and severe risk for delayed wound healing. An HbA1c of 5.6% and fasting glucose of 90 mg/dL are both normal values. A total lymphocyte count of 2,500/mm³ is within the normal range (1,000–4,800)."},
+  {"n": 24, "topic": "MARSI Prevention", "type": "single", "text": "The nurse is removing old paper tape from a frail older adult patient. To prevent Medical Adhesive-Related Skin Injury (MARSI), what is the correct technique?", "options": ["Pull the tape quickly in a direction perpendicular to the skin.", "Pull the tape parallel to the skin in the direction of hair growth while pushing the skin away from the adhesive.", "Lift the tape starting from the center and pulling outward toward the edges.", "Soak the tape with hydrogen peroxide for 5 minutes before pulling."], "answer": 1, "rationale": "To prevent MARSI, remove tape by <strong>pulling parallel to the skin in the direction of hair growth</strong> while using the push-pull method — pushing the skin down and away from the adhesive. Pulling perpendicular to the skin rips the epidermis off. Lifting from the center outward causes severe tension and shearing. Hydrogen peroxide is cytotoxic to skin and not evidence-based for adhesive removal; commercial adhesive removers are the appropriate alternative when resistance is met."},
+  {"n": 25, "topic": "Medical Device Pressure Injury", "type": "single", "text": "During an infectious disease outbreak, a nurse must wear a tightly fitted N95 respirator for a 12-hour shift. To prevent a medical device-related pressure injury on the bridge of the nose, which intervention should the nurse prioritize?", "options": ["Apply a thick layer of petroleum jelly to the nose to reduce friction.", "Place a piece of woven dry gauze under the seal of the mask.", "Perform frequent PPE offloading to relieve pressure and shear.", "Massage the bridge of the nose vigorously every 2 hours."], "answer": 2, "rationale": "NPIAP evidence-based guidelines state that the <strong>primary intervention to prevent medical device-related pressure injuries from PPE is frequent offloading to relieve the applied pressure and shear</strong>. Petroleum jelly degrades the N95 seal, rendering it ineffective for its purpose. Dry gauze under the mask alters the fit-test seal and breaks infection control protocols. Massaging bony prominences is explicitly contraindicated — it damages underlying capillaries and increases tissue ischemia."},
+  {"n": 26, "topic": "Clean vs. Sterile Technique", "type": "single", "text": "A home health nurse is cleaning a chronic Stage 3 pressure injury. The patient's family asks why the nurse is not using sterile gloves. What is the nurse's best educational response?", "options": ["Sterile gloves are too expensive to use for routine home care.", "Pressure injuries are nonsterile wounds, so clean technique with clean gloves is appropriate.", "The wound is already infected, so sterile technique will not make a difference.", "I will apply a sterile dressing, so the gloves used to clean the wound do not matter."], "answer": 1, "rationale": "Pressure injuries and chronic wounds are considered <strong>nonsterile environments</strong>. According to evidence-based practice, <strong>clean technique using clean (nonsterile) gloves is completely appropriate and standard</strong> for cleaning these wounds — especially in the home or long-term care setting. Cost does not dictate infection control standards. The reasoning is based on wound type (nonsterile), not on assuming infection. The gloves used to clean the wound do matter — clean gloves are appropriate precisely because the wound environment is nonsterile."},
+  {"n": 27, "topic": "Heat Therapy Contraindications", "type": "single", "text": "A patient in the emergency department with severe, undiagnosed abdominal pain requests a heating pad to relieve the cramps. What is the nurse's best clinical action?", "options": ["Provide the heating pad on a low setting for a maximum of 15 minutes.", "Provide a hot water bottle instead of an electric heating pad for safety.", "Deny the request, as heat over an acutely inflamed area can cause an appendix to rupture.", "Apply a warm, moist compress to the abdomen instead of dry heat."], "answer": 2, "rationale": "Heat causes profound localized vasodilation and is <strong>strictly contraindicated over acutely inflamed areas</strong> with undiagnosed pain. In appendicitis, increased blood volume and pressure from vasodilation can cause the inflamed appendix to rupture, leading to peritonitis. Providing a heating pad on any setting (A), a hot water bottle (B), or a warm compress (D) all apply heat to the area, which is medically dangerous when abdominal pathology is undiagnosed."},
+  {"n": 28, "topic": "Fibrin Sealant Risk", "type": "single", "text": "A surgeon uses a fibrin sealant aerosol spray to close a patient's abdominal incision in the OR. Postoperatively, what specific potentially fatal complication must the nurse monitor for related to this closure method?", "options": ["Air or gas embolism", "Contact dermatitis", "Sudden evisceration", "Severe hypothermia"], "answer": 0, "rationale": "Fibrin sealants applied via <strong>aerosol spray carry a specific risk of air or gas embolism</strong>. If the spray is not used strictly according to manufacturer recommendations for pressure and distance, the pressurized gas used to propel the glue can enter open blood vessels, leading to a potentially fatal embolism. Contact dermatitis is a minor local risk. Fibrin sealants glue the epidermis together, decreasing (not causing) evisceration. They do not cause systemic hypothermia."},
+  {"n": 29, "topic": "Hydrocolloid Contraindications", "type": "single", "text": "A provider orders a hydrocolloid dressing for a patient with a heavily draining infected wound and a history of Type 2 diabetes mellitus. What is the nurse's priority action?", "options": ["Apply the hydrocolloid securely to contain the heavy drainage.", "Hold the dressing application and contact the provider to question the order.", "Apply the hydrocolloid but change it every 12 hours instead of every 3 days.", "Cleanse the wound vigorously with povidone-iodine before applying the hydrocolloid."], "answer": 1, "rationale": "Hydrocolloid dressings are occlusive — they trap moisture and heat inside the wound bed. They are <strong>explicitly contraindicated on infected wounds and in diabetic patients</strong>. The trapped heat and moisture will cause an active infection to proliferate rapidly, especially in an immunocompromised diabetic. The priority is to <strong>hold the application and contact the provider</strong>. Applying it at any frequency over an infected wound in a diabetic is still contraindicated. Povidone-iodine is cytotoxic and destroys healing tissue."},
+  {"n": 30, "topic": "Arterial Ulcer Positioning", "type": "single", "text": "A nurse is developing a care plan for a patient with a severe arterial ulcer on the lateral malleolus with extreme pain. Which positioning intervention is most appropriate to alleviate this patient's pain?", "options": ["Elevate the patient's legs above the level of the heart on two pillows.", "Apply a tight compression bandage (Unna boot) from the toes to the knee.", "Allow the patient to sit with their legs dependent (dangling) to promote blood flow.", "Position the patient in a side-lying position with a foam wedge between the knees."], "answer": 2, "rationale": "Arterial ulcers are caused by ischemia — a severe lack of arterial blood supply to the extremities. Gravity assists arterial flow, so <strong>allowing the patient to sit with legs dependent (dangling) significantly improves blood flow to the ischemic tissue and relieves pain</strong>. Elevating legs above the heart forces blood to flow against gravity, severely worsening ischemia and pain. Tight compression is used for venous ulcers and would cut off arterial supply. Side-lying does not utilize gravity to aid arterial perfusion."},
+  {"n": 31, "topic": "Wound Healing — Primary Intention", "type": "single", "text": "A nurse is assessing a surgical incision that was closed with staples and has well-approximated edges. Which healing process is this wound undergoing?", "options": ["Primary intention", "Secondary intention", "Tertiary intention", "Delayed primary closure"], "answer": 0, "rationale": "<strong>Primary intention</strong> involves wounds with little or no tissue loss and well-approximated edges, such as a sutured or stapled surgical incision. Secondary intention involves large, open wounds with tissue loss that heal by granulation. Tertiary intention (delayed primary closure) involves leaving a wound open for several days to allow infection or edema to resolve before surgically closing it."},
+  {"n": 32, "topic": "Factors Affecting Wound Healing", "type": "sata", "text": "Which of the following factors negatively affect the wound healing process? (Select all that apply)", "options": ["Corticosteroid use", "Obesity", "Serum albumin of 4.2 g/dL", "Advanced age", "Hemoglobin level of 14 g/dL"], "answer": [0, 1, 3], "rationale": "<strong>Corticosteroids</strong> decrease the inflammatory process and delay healing. <strong>Obesity</strong> causes hypoperfusion in adipose tissue, delaying cellular repair. <strong>Advanced age</strong> delays healing due to decreased fibroblastic activity and circulation. A serum albumin of 4.2 g/dL is normal (3.4–5.4 g/dL) and supports healing. A hemoglobin of 14 g/dL is normal and provides adequate oxygen; it is <em>low</em> hemoglobin that negatively affects healing."},
+  {"n": 33, "topic": "Wound Healing Stages", "type": "single", "text": "During which stage of wound healing do macrophages arrive to engulf microorganisms and release growth factors to attract fibroblasts?", "options": ["Hemostasis", "Inflammatory stage", "Proliferative stage", "Maturation stage"], "answer": 1, "rationale": "During the <strong>inflammatory phase</strong>, macrophages ingest debris and release growth factors necessary for epithelial cell growth and fibroblast attraction. Hemostasis = initial cessation of bleeding. Proliferative stage = connective tissue replacing lost tissue. Maturation = strengthening of the collagen scar."},
+  {"n": 34, "topic": "Nutrition & Wound Healing", "type": "single", "text": "The nurse knows that adequate nutrition is essential for wound healing. Which vitamins are specifically noted as essential for epithelialization and collagen synthesis?", "options": ["Vitamin D and Vitamin E", "Vitamin B complex and Vitamin K", "Vitamin A and Vitamin C", "Vitamin D and Calcium"], "answer": 2, "rationale": "<strong>Vitamins A and C</strong> are specifically essential for epithelialization and collagen synthesis. Vitamin K is needed for prothrombin synthesis. B complex serves as a cofactor for enzyme reactions. Vitamins D and E are not the primary drivers of epithelialization and collagen formation."},
+  {"n": 35, "topic": "Wound Tissue Types", "type": "single", "text": "A wound healing by secondary intention is filling with highly vascular, red tissue that bleeds easily. How should the nurse document this tissue?", "options": ["Eschar", "Slough", "Exudate", "Granulation tissue"], "answer": 3, "rationale": "<strong>Granulation tissue</strong> forms the foundation for scar tissue development — it is highly vascular, red/beefy, and bleeds easily. Eschar = dry, black, leathery necrotic tissue. Slough = moist, yellow, stringy dead tissue. Exudate = liquid drainage."},
+  {"n": 36, "topic": "Wound Dehiscence", "type": "single", "text": "A client 5 days postoperative reports feeling something 'give way' in their abdomen after coughing. The nurse notes a sudden increase in serosanguineous drainage and separation of wound layers. What complication is occurring?", "options": ["Internal hemorrhage", "Dehiscence", "Evisceration", "Fistula formation"], "answer": 1, "rationale": "<strong>Dehiscence</strong> is the partial or total separation of wound layers, classically preceded by a sudden increase in serosanguineous drainage between post-op days 4 and 5, and the sensation of something 'giving way.' Evisceration involves protrusion of internal organs through the opening. Internal hemorrhage causes hematoma and tissue ischemia. A fistula is an abnormal passage between two organs."},
+  {"n": 37, "topic": "Wound Drainage Types", "type": "single", "text": "A nurse observes thick, dark green drainage with a foul odor from a client's wound. How should the nurse document this drainage?", "options": ["Serous", "Sanguineous", "Serosanguineous", "Purulent"], "answer": 3, "rationale": "<strong>Purulent drainage</strong> is thick, has a musty or foul odor, and varies in color (dark yellow or green) because it contains white blood cells, dead tissue debris, and bacteria. Serous = clear and watery. Sanguineous = bloody. Serosanguineous = pink and watery."},
+  {"n": 38, "topic": "Systemic Wound Infection", "type": "sata", "text": "Which of the following are clinical manifestations of a systemic wound infection? (Select all that apply)", "options": ["Purulent drainage", "Decrease in white blood cell (WBC) count", "Tachycardia", "Persistent recurrent fever", "Increased thirst"], "answer": [0, 2, 3], "rationale": "Systemic infection (sepsis) indicators include <strong>purulent drainage, tachycardia, and persistent recurrent fever</strong> (along with tachypnea and hypotension). WBC counts <em>increase</em> during an infection, not decrease. Increased thirst is a sign of dehydration or hyperglycemia, not systemic wound infection."},
+  {"n": 39, "topic": "Evisceration Emergency", "type": "single", "text": "A nurse is caring for a client with an abdominal evisceration. What is the nurse's immediate priority?", "options": ["Attempt to gently reinsert the organs.", "Cover the exposed organs with sterile towels soaked in sterile normal saline.", "Offer the client a sip of water to calm them.", "Place the client in a high Fowler's position."], "answer": 1, "rationale": "Evisceration is a medical emergency. The nurse must immediately <strong>cover the wound and protruding organs with sterile towels soaked in sterile normal saline</strong> to prevent bacterial invasion and tissue drying. <strong>Never</strong> attempt to reinsert the organs. The client must be kept NPO for emergency surgery. The client should be placed supine with hips and knees bent (low Fowler's), not high Fowler's."},
+  {"n": 40, "topic": "Wound Hemorrhage", "type": "single", "text": "What is the greatest risk period for a patient to experience wound hemorrhage following surgery?", "options": ["2 to 11 days", "24 to 48 hours", "7 to 10 days", "12 to 24 hours"], "answer": 1, "rationale": "The risk for hemorrhage is greatest <strong>24 to 48 hours</strong> after injury or surgery. 2 to 11 days is the typical timeframe for manifestations of <em>infection</em> to appear, not peak hemorrhage risk."},
+  {"n": 41, "topic": "Shear Forces", "type": "single", "text": "A client who is partially sitting up in bed slides downward toward the foot. The skin sticks to the sheet while the underlying tissues move downward. What force is causing tissue damage in this scenario?", "options": ["Friction", "Shear", "Maceration", "Microclimate"], "answer": 1, "rationale": "<strong>Shear</strong> results when one layer of tissue slides over another, stretching and tearing blood vessels — this is exactly what happens when a patient slides down in bed while their skin remains fixed to the sheets. Friction = two surfaces rubbing directly against each other (an abrasion). Maceration = tissue erosion from excessive moisture. Microclimate = temperature and moisture on the skin surface."},
+  {"n": 42, "topic": "Microclimate Factors", "type": "sata", "text": "Which factors contribute directly to the microclimate of the skin, increasing the risk of pressure injury development? (Select all that apply)", "options": ["Fecal incontinence", "Perspiration", "Ambient lighting", "Wound exudate", "Decreased sensory perception"], "answer": [0, 1, 3], "rationale": "Microclimate refers to the temperature and moisture of the skin. <strong>Fecal incontinence, perspiration, and wound exudate</strong> all create damaging moisture on the skin, requiring less friction to blister and abrade. Ambient lighting has no effect on microclimate. Decreased sensory perception is a risk factor for pressure injury, but it is not a component of the skin's microclimate."},
+  {"n": 43, "topic": "Reactive Hyperemia", "type": "single", "text": "A patient has been supine for 2 hours. The nurse turns the patient and notes a red area on the sacrum that turns pale when slight pressure is applied. How should the nurse interpret this finding?", "options": ["Stage 1 pressure injury", "Reactive hyperemia", "Suspected deep tissue injury", "Incontinence-associated dermatitis"], "answer": 1, "rationale": "<strong>Blanchable erythema (reactive hyperemia)</strong> is a normal physiological response — the body floods the area with blood after pressure is relieved, and it should fade within 60–90 minutes. A Stage 1 pressure injury is <em>nonblanchable</em>. Deep tissue injury presents as persistent nonblanchable purple or maroon discoloration. There is no mention of moisture to suggest incontinence-associated dermatitis."},
+  {"n": 44, "topic": "Common PI Sites", "type": "single", "text": "Which bony prominence is the most common site for a pressure injury to occur?", "options": ["Calcaneus (heel)", "Trochanter (hip)", "Sacrum and coccyx", "Lateral malleolus"], "answer": 2, "rationale": "The <strong>sacrum and coccyx</strong> are the most common sites for pressure injuries, followed by the trochanter and calcaneus. The lateral malleolus is a classic site for arterial ulcers, not the primary site for pressure injuries."},
+  {"n": 45, "topic": "Aging & Pressure Injury Risk", "type": "sata", "text": "Why are older adults at higher risk for pressure injury development? (Select all that apply)", "options": ["Delayed maturation of epidermal cells", "Increased activity of sebaceous glands", "Decreased elasticity due to impaired collagen formation", "Diminished sensation of pressure and pain", "Increased subcutaneous fat tissue"], "answer": [0, 2, 3], "rationale": "In older adults, <strong>epidermal cell maturation is delayed</strong>, <strong>collagen formation is impaired</strong> (decreasing elasticity), and <strong>sensation of pressure/pain is reduced</strong>. Sebaceous gland activity <em>decreases</em> (causing dry skin), it does not increase. Subcutaneous tissue becomes <em>thin</em> in older adults, it does not increase."},
+  {"n": 46, "topic": "Braden Scale Parameters", "type": "single", "text": "Which of the following are the exact parameters assessed by the Braden Scale?", "options": ["Age, weight, build, continence, and mobility", "Physical condition, mental condition, activity, mobility, and incontinence", "Mental status, continence, mobility, activity, and nutrition", "Hemodynamic status, respiratory status, incontinence, and hygiene"], "answer": 2, "rationale": "The <strong>Braden Scale</strong> assesses: mental status, continence, mobility, activity, and nutrition (along with friction/shear). Physical/mental condition, activity, mobility, and incontinence = Norton Scale. Age, weight, build = Waterlow Scale. Hemodynamic and respiratory status = Jackson/Cubbin Scale."},
+  {"n": 47, "topic": "Braden Scoring", "type": "single", "text": "A client is assessed using the Braden Scale and receives a score of 11. What level of risk does this indicate?", "options": ["No risk", "Mild risk", "Moderate risk", "High risk"], "answer": 3, "rationale": "A Braden score of <strong>10 to 12 indicates high risk</strong>. Scoring guide: 19–23 = no risk; 15–18 = mild risk; 13–14 = moderate risk; 10–12 = high risk; ≤9 = very high risk."},
+  {"n": 48, "topic": "Jackson/Cubbin vs. Braden", "type": "single", "text": "Why might the Jackson/Cubbin Pressure Area Risk Calculator be preferred over the Braden Scale for a trauma-surgical ICU patient?", "options": ["The Braden Scale underpredicts pressure injury risk in critically ill patients.", "The Jackson/Cubbin scale specifically includes hemodynamic status and oxygen requirements.", "The Jackson/Cubbin scale is the only tool that assesses mobility and continence.", "The Braden scale requires patient communication, which intubated patients cannot provide."], "answer": 1, "rationale": "The <strong>Jackson/Cubbin scale was designed for the ICU</strong> and includes hemodynamic status, respiratory status, and oxygen requirements (vasopressors, mechanical ventilation) — critical variables for this population. The Braden scale <em>overpredicts</em> risk in critically ill patients (it does not underpredict). Both tools assess continence and mobility."},
+  {"n": 49, "topic": "Nutritional Risk Labs", "type": "single", "text": "A nurse is reviewing a client's laboratory results for nutritional risk for pressure injury development. Which finding indicates the client is at risk?", "options": ["Prealbumin 22 mg/dL", "Albumin 2.8 g/dL", "Hemoglobin A1c 5.2%", "Fasting Glucose 95 mg/dL"], "answer": 1, "rationale": "An <strong>albumin level below 3.2 g/dL</strong> (normal: 3.4–5.4 g/dL) indicates the patient is nutritionally at risk for pressure injuries. Prealbumin 22 mg/dL is normal (15–36). HbA1c 5.2% is normal (less than 5.7%). Fasting glucose 95 is normal (less than 100 mg/dL)."},
+  {"n": 50, "topic": "Risk Reassessment Frequency", "type": "single", "text": "How often should a patient in an acute care setting be reassessed for pressure injury risk?", "options": ["On admission, then weekly for 4 weeks", "Only when their condition changes", "On admission, then every shift and with any change in condition", "At every home health visit"], "answer": 2, "rationale": "In the <strong>acute care setting</strong>, reassessment is recommended <strong>on admission, then every shift and with any change in condition</strong>. Weekly reassessment for 4 weeks applies to long-term care settings. At every visit applies to home health care."},
+  {"n": 51, "topic": "Preventing Pressure Injuries", "type": "sata", "text": "A nurse is planning care to prevent pressure injuries for a bed-bound client. Which interventions should the nurse include? (Select all that apply)", "options": ["Massage reddened bony prominences daily to stimulate blood flow.", "Keep the head of the bed at or below a 30-degree angle.", "Reposition the client in bed at least every 2 hours.", "Lift, rather than pull, the client up in bed.", "Use a donut-type device to relieve pressure on the sacrum."], "answer": [1, 2, 3], "rationale": "The HOB should be at or below <strong>30 degrees</strong> to prevent shearing. <strong>Repositioning at least every 2 hours</strong> limits tissue exposure to pressure. <strong>Lifting rather than pulling</strong> prevents friction. Massaging bony prominences is contraindicated and causes further tissue damage. Donut devices concentrate pressure on surrounding tissue and increase venous pressure — they must never be used."},
+  {"n": 52, "topic": "Incontinence Skin Care", "type": "single", "text": "A client has urinary incontinence. Which skin care intervention is most appropriate to prevent skin breakdown?", "options": ["Clean the skin with nonionic surfactants and pat dry immediately.", "Apply cornstarch to repel moisture.", "Scrub the skin vigorously with hot water and antibacterial soap.", "Use a donut cushion to keep the perineal area open to the air."], "answer": 0, "rationale": "The skin should be <strong>cleaned with gentle nonionic surfactants and patted dry immediately</strong> following incontinence. Cornstarch and powders are contraindicated due to abrasive grit and aspiration risk. Hot water and vigorous scrubbing cause trauma. Donut cushions are explicitly contraindicated for pressure injury prevention."},
+  {"n": 53, "topic": "Positioning Alternatives", "type": "single", "text": "Which position is recommended as an alternative to the 90-degree side-lying position to significantly reduce pressure on the trochanter area?", "options": ["High Fowler's position", "20- to 30-degree side-lying oblique position", "Prone position", "Trendelenburg position"], "answer": 1, "rationale": "The <strong>20- to 30-degree side-lying oblique position</strong> results in significantly less pressure on the trochanter compared to the 90-degree lateral position. High Fowler's increases shear down the spine. The prone position does not specifically address trochanter offloading better than the oblique. Trendelenburg is not indicated for pressure relief."},
+  {"n": 54, "topic": "Prophylactic Dressings", "type": "single", "text": "The nurse applies a prophylactic polyurethane foam dressing to a patient's heel. What is the primary purpose of this intervention?", "options": ["To enzymatically debride necrotic tissue", "To reduce friction, pressure, and shear", "To absorb heavy purulent exudate", "To treat an existing deep tissue pressure injury"], "answer": 1, "rationale": "Prophylactic dressings (like polyurethane foam) <strong>reduce friction, pressure, and shear</strong>, protect fragile skin, and favorably influence the microclimate. They are a preventive intervention, not for enzymatic debridement, absorbing purulent drainage, or treating existing deep tissue injuries."},
+  {"n": 55, "topic": "Heel Pressure Relief", "type": "single", "text": "A nurse needs to relieve pressure on an immobile client's heels. What is the most appropriate action?", "options": ["Apply tightly fitted compression socks.", "Place a standard pillow under the length of the calves.", "Massage the heels briskly every hour.", "Place the heels directly on a gel mattress overlay."], "answer": 1, "rationale": "Placing a standard pillow <strong>under the length of the calves</strong> raises the heels completely off the bed, effectively 'floating' the heels and eliminating all pressure. Compression socks do not offload pressure. Massaging bony prominences is contraindicated. Resting heels on a gel overlay still exposes them to some pressure — complete floating is required."},
+  {"n": 56, "topic": "Staging — DTPI", "type": "single", "text": "A nurse assesses a localized area of intact skin on a client's heel that is a persistent, nonblanchable deep maroon discoloration. The area feels boggy. How should the nurse stage this injury?", "options": ["Stage 1 Pressure Injury", "Stage 2 Pressure Injury", "Unstageable Pressure Injury", "Deep Tissue Pressure Injury (DTPI)"], "answer": 3, "rationale": "A <strong>DTPI</strong> presents as a persistent, nonblanchable purple, deep red, or maroon discoloration of intact or nonintact skin; the tissue may feel boggy or mushy. Stage 1 = nonblanchable erythema (redness, not purple/maroon). Stage 2 = open blister or partial-thickness loss. Unstageable = full-thickness loss completely obscured by eschar or slough."},
+  {"n": 57, "topic": "Stage 3 Characteristics", "type": "sata", "text": "What clinical findings are characteristic of a Stage 3 pressure injury? (Select all that apply)", "options": ["Exposed bone or tendon", "Visible adipose (fat) tissue", "Epibole (rolled wound edges)", "Intact serum-filled blister", "Possible slough/eschar that does not obscure depth"], "answer": [1, 2, 4], "rationale": "<strong>Stage 3</strong> involves full-thickness skin loss with <strong>visible adipose tissue</strong>, possible <strong>epibole (rolled wound edges)</strong>, and possible slough/eschar <strong>that does not obscure the depth</strong>. Exposed bone or tendon = Stage 4 injury. An intact serum-filled blister = Stage 2 injury."},
+  {"n": 58, "topic": "Unstageable Wounds", "type": "single", "text": "A client has a full-thickness wound on the sacrum that is completely covered by thick, black eschar. How should the nurse document the stage?", "options": ["Stage 3", "Stage 4", "Unstageable", "Deep Tissue Pressure Injury"], "answer": 2, "rationale": "When the clinician is unable to visualize the extent of tissue damage due to slough or eschar obscuring the wound bed, it is classified as <strong>Unstageable</strong>. It cannot be staged as 3 or 4 until the eschar is removed and true depth is revealed. A DTPI presents as purple/maroon intact skin or a blood-filled blister — not a bed obscured by black eschar."},
+  {"n": 59, "topic": "Stage 2 Identification", "type": "single", "text": "A client has a shallow, open pink ulcer on the coccyx without any slough or bruising. Which stage is this pressure injury?", "options": ["Stage 1", "Stage 2", "Stage 3", "Unstageable"], "answer": 1, "rationale": "<strong>Stage 2</strong> involves partial-thickness loss of dermis, presenting as a shallow, open ulcer with a red/pink wound bed without slough or bruising. Stage 1 = intact skin with nonblanchable erythema. Stage 3 = full-thickness loss with visible fat. Unstageable = completely obscured by necrotic tissue."},
+  {"n": 60, "topic": "Reverse Staging", "type": "single", "text": "A patient had a Stage 4 pressure injury that has been healing well. Granulation tissue has filled the wound and bone is no longer visible. How should the nurse document the current stage?", "options": ["Stage 2", "Stage 3", "Healing Stage 4", "Unstageable"], "answer": 2, "rationale": "<strong>Staging reflects the maximum level of injury — wounds do not reverse stage.</strong> A Stage 4 that is healing is documented as 'Healing Stage 4' because the original tissue structures (muscle, bone) are replaced with scar tissue, not regenerated original tissue. Downstaging to a 2 or 3 would imply the original tissue grew back, which does not occur."},
+  {"n": 61, "topic": "Tunneling Documentation", "type": "single", "text": "The nurse is documenting the presence of tunneling in a wound. Which technique accurately describes how to document this finding?", "options": ["Estimate the depth visually and note the color of the tunnel.", "Use the face of a clock to describe the direction and measure depth using a moistened cotton-tipped applicator.", "Insert a dry finger to palpate the endpoint and document depth in inches.", "Inject saline into the tunnel and document the volume held."], "answer": 1, "rationale": "Tunneling is documented by <strong>gently inserting a moistened sterile cotton-tipped applicator, viewing the direction as a clock face (12 o'clock toward the head), and measuring the depth by marking the applicator at the skin level and measuring with a ruler</strong>. Visual estimation is inaccurate. Using a finger causes trauma. Injecting saline does not measure linear depth and risks tissue damage."},
+  {"n": 62, "topic": "Comprehensive Wound Documentation", "type": "sata", "text": "Comprehensive wound documentation must include which of the following? (Select all that apply)", "options": ["Size (length, width, depth)", "Presence of undermining or tunneling", "The exact cost of the dressing supplies", "Characteristics of drainage (amount, color, odor)", "Repositioning schedule and support surfaces in use"], "answer": [0, 1, 3, 4], "rationale": "Proper documentation includes <strong>size (L×W×D)</strong>, <strong>undermining/tunneling presence</strong>, <strong>exudate characteristics</strong> (amount, color, odor, consistency), and <strong>interventions in use</strong> like support surfaces and repositioning schedules. The exact cost of dressing supplies is not a clinical wound assessment documentation element."},
+  {"n": 63, "topic": "PUSH Tool", "type": "single", "text": "The National Pressure Ulcer Advisory Panel developed the PUSH Tool. What is its primary purpose?", "options": ["To determine a patient's initial risk for developing a pressure injury", "To monitor the change in a pressure injury's status over time", "To decide whether a wound requires surgical debridement", "To select the correct type of wound dressing"], "answer": 1, "rationale": "The <strong>Pressure Ulcer Scale for Healing (PUSH Tool)</strong> is a quick, reliable tool used to <strong>monitor the change in pressure injury status over time</strong> (healing, unchanged, or deteriorating). The Braden scale determines initial risk. The PUSH tool is not primarily for selecting dressings or dictating surgical debridement."},
+  {"n": 64, "topic": "RYB — Black Wounds", "type": "single", "text": "A nurse is assessing a mixed wound: 50% yellow slough, 25% black eschar, and 25% red granulation tissue. Using the RYB color code, what is the priority intervention for the black tissue?", "options": ["Protect", "Cleanse", "Debride", "Moisturize"], "answer": 2, "rationale": "In the RYB classification, <strong>Black = Debride</strong> (removal of necrotic tissue) — the most serious color and always the first priority. Red = Protect. Yellow = Cleanse. The hierarchy is Black → Yellow → Red, with the most severe always addressed first."},
+  {"n": 65, "topic": "Measuring Wound Depth", "type": "single", "text": "When measuring the depth of a wound, what is the correct technique?", "options": ["Insert a sterile, flexible cotton-tipped applicator straight down into the deepest part at a 90-degree angle.", "Press a ruler directly into the wound bed until resistance is felt.", "Measure the distance from the top wound edge to the bottom wound edge visually.", "Pack the wound with gauze and measure the length of gauze used."], "answer": 0, "rationale": "Depth is measured by <strong>moistening a sterile cotton-tipped applicator, inserting it gently at a 90-degree angle with the tip down, marking the point even with the skin surface, and measuring it against a ruler</strong>. Pressing a rigid ruler into the wound causes severe trauma and pain. Visual estimation and gauze packing are not accurate linear measurement methods."},
+  {"n": 66, "topic": "Wound Culture Technique", "type": "single", "text": "A nurse is obtaining a wound culture using the Levine technique. Which action should the nurse take first?", "options": ["Administer the prescribed broad-spectrum IV antibiotic.", "Swab the outer edges of the wound where drainage pools.", "Cleanse the wound using non-preservative normal saline.", "Swab the yellow slough tissue to identify the pathogen."], "answer": 2, "rationale": "The wound must be <strong>cleaned with non-preservative saline first</strong> to remove exudate and surface debris that could introduce extraneous organisms. The swab must then be pressed into a 1-cm area of clean viable tissue. Cultures must be drawn <em>before</em> antibiotics are started. Swabbing outer edges or slough yields inaccurate results."},
+  {"n": 67, "topic": "MARSI Prevention", "type": "sata", "text": "When removing an adhesive tape dressing from a frail older adult, which techniques should the nurse use to prevent MARSI? (Select all that apply)", "options": ["Pull the tape quickly, perpendicular to the skin.", "Remove the tape in the direction of hair growth.", "Use a push-pull method, lifting a corner and pushing the skin away.", "Lift the center of the dressing first and pull outward.", "Use an adhesive remover if there is resistance."], "answer": [1, 2, 4], "rationale": "To prevent MARSI: <strong>remove tape in the direction of hair growth</strong>, use the <strong>push-pull method</strong> (supports the skin and prevents stripping), and use <strong>adhesive remover when resistance is met</strong>. Pulling perpendicular or lifting from the center outward causes severe epidermal stripping."},
+  {"n": 68, "topic": "Transparent Film Indications", "type": "single", "text": "The provider orders a transparent film dressing for a patient. For which type of wound is this dressing most appropriate?", "options": ["A heavily exuding venous ulcer", "A deep Stage 4 pressure injury with tunneling", "A superficial Stage 1 pressure injury", "An infected diabetic foot ulcer"], "answer": 2, "rationale": "Transparent films are non-absorptive, self-adhesive dressings appropriate for <strong>small, partial-thickness wounds, Stage 1 pressure injuries</strong>, and IV catheter sites. They offer no absorption and are contraindicated for heavy exudate. They are not suitable for deep tunneling wounds or active infections."},
+  {"n": 69, "topic": "Hydrocolloid Contraindications", "type": "single", "text": "A nurse should question an order for a hydrocolloid dressing if the patient has which condition?", "options": ["A clean Stage 2 pressure injury", "A shallow wound with light drainage", "An infected wound or diabetes mellitus", "A necrotic wound requiring autolytic debridement"], "answer": 2, "rationale": "Hydrocolloids are occlusive and retain moisture and heat. They are explicitly <strong>contraindicated on infected wounds and in diabetic patients</strong> because the trapped heat and moisture will cause an active infection to proliferate and can cause complications in diabetic wound healing. They are indicated for Stage 2/3 injuries, light/moderate drainage, and facilitating autolytic debridement."},
+  {"n": 70, "topic": "Wound Irrigation Equipment", "type": "single", "text": "To safely irrigate a deep wound and flush out debris without damaging granulation tissue, what equipment should the nurse use?", "options": ["A 10-mL syringe with a 22-gauge needle", "A 30- to 60-mL syringe with a 19-gauge needle or straight catheter", "A bulb syringe", "A pressurized canister set to 15 psi"], "answer": 1, "rationale": "A <strong>30- to 60-mL syringe with a 19-gauge needle</strong> provides the safe, recommended 5 to 8 psi of pressure required to effectively irrigate a wound. A 10-mL syringe provides too much pressure (causes trauma), a bulb syringe provides too little (ineffective), and 15 psi is too high and damages granulation tissue."},
+  {"n": 71, "topic": "Cold Therapy — Rebound", "type": "single", "text": "The nurse is applying a cold pack to a patient's ankle. If cold is applied until the skin temperature reaches 60°F (15°C), which physiological response will occur?", "options": ["Maximum vasoconstriction followed by rebound vasodilation", "Immediate and permanent tissue necrosis", "Systemic hypovolemic shock", "Rapid increase in capillary permeability"], "answer": 0, "rationale": "With cold therapy, <strong>maximum vasoconstriction occurs when skin reaches 60°F (15°C)</strong>; beyond that, the rebound phenomenon occurs and vasodilation begins. This does not cause immediate permanent necrosis. Hypovolemic shock is a risk of extensive <em>heat</em> application, not localized cold. Cold <em>decreases</em> capillary permeability."},
+  {"n": 72, "topic": "Heat Therapy Physiology", "type": "sata", "text": "The application of local heat produces which of the following physiological effects? (Select all that apply)", "options": ["Vasoconstriction", "Increased tissue metabolism", "Reduced blood viscosity", "Increased capillary permeability", "Decreased local release of histamine"], "answer": [1, 2, 3], "rationale": "Local heat causes <strong>vasodilation</strong> (not vasoconstriction), <strong>increases tissue metabolism</strong>, <strong>reduces blood viscosity</strong>, and <strong>increases capillary permeability</strong>. Heat causes vasodilation — not vasoconstriction. Cold (not heat) decreases the release of pain-producing substances like histamine."},
+  {"n": 73, "topic": "Cold Therapy — Acute Trauma", "type": "single", "text": "A client sprains their ankle and applies an ice pack. What is the primary therapeutic purpose of applying cold immediately after direct trauma?", "options": ["To increase blood flow to the damaged cells", "To reduce the formation of edema and inflammation", "To increase the metabolic needs of the tissues", "To prolong blood clotting time"], "answer": 1, "rationale": "Cold reduces blood flow, which decreases the release of histamine/bradykinin, thereby <strong>reducing the formation of edema and inflammation</strong> after direct trauma. Heat increases blood flow and metabolic needs. Cold increases blood coagulation at the wound site; heat prolongs clotting time."},
+  {"n": 74, "topic": "Heat Therapy Contraindications", "type": "single", "text": "For which patient condition is the application of local heat strictly contraindicated?", "options": ["A patient with chronic joint stiffness", "A patient experiencing dysmenorrhea", "A patient with a localized, actively bleeding wound", "A patient with an infected surgical incision"], "answer": 2, "rationale": "Heat causes vasodilation and increased capillary permeability, which prolongs clotting. Therefore, it must <strong>not be applied during active hemorrhage</strong>. Heat is therapeutically used to treat joint stiffness, dysmenorrhea (menstrual cramps), and infections (by promoting leukocyte delivery to the area)."},
+  {"n": 75, "topic": "Heat Therapy — Systemic Risk", "type": "single", "text": "A nurse applies extensive, prolonged heat to a large area of a patient's body. The nurse must monitor the patient closely for which systemic response?", "options": ["Shivering and goose bumps", "Decreased cardiac output", "Decreased blood pressure and hypovolemic shock", "Decreased pulse rate"], "answer": 2, "rationale": "The systemic effects of extensive, prolonged heat include increased cardiac output, sweating, increased pulse rate, and <strong>decreased blood pressure</strong> — which can lead to <strong>hypovolemic shock</strong> from massive vasodilation. Shivering and goose bumps are responses to cold. Heart rate and cardiac output <em>increase</em> with heat, not decrease."},
+  {"n": 76, "topic": "Heating Pad Safety", "type": "sata", "text": "A nurse is instructing a client on the safe home use of an electric heating pad. Which instructions should the nurse include? (Select all that apply)", "options": ["Secure the heating pad to your body using safety pins.", "Place a moisture-proof covering over the pad.", "Place the heating pad anteriorly or laterally — never underneath the body part.", "Turn the heat to the highest setting if the pad stops feeling warm after 30 minutes.", "Assess the skin regularly for increased redness."], "answer": [1, 2, 4], "rationale": "The pad must be <strong>covered (moisture-proof)</strong>, placed <strong>on top of or beside</strong> the patient (never under — to allow heat dissipation and prevent burns), and the <strong>skin must be checked regularly</strong>. Pins can cause electric shock. Turning up the heat after thermal receptors adapt causes severe burns because the receptors lose sensitivity."},
+  {"n": 77, "topic": "Sitz Bath Monitoring", "type": "single", "text": "A postpartum client is prescribed a sitz bath to promote healing of a perineal tear. Which action is the priority during the procedure?", "options": ["Ensure the water temperature is maintained exactly at 105°F (40.5°C).", "Keep the patient in the bath for at least 45 minutes.", "Monitor the patient closely for faintness, pallor, or nausea.", "Leave the patient alone to ensure privacy."], "answer": 2, "rationale": "A sitz bath causes pelvic vasodilation, which can lead to systemic hypotension. The nurse must <strong>monitor for weakness, faintness, pallor, rapid pulse, or nausea</strong>. The water should be 93° to 99°F (34°–37°C) for healing, not 105°F. The bath should last 15 to 20 minutes, not 45. The patient should not be left alone if safety is a concern."},
+  {"n": 78, "topic": "Ice Bag Application", "type": "single", "text": "A nurse is preparing an ice bag for a patient. Which technique demonstrates the correct application method?", "options": ["Fill the bag completely to the top with large ice cubes.", "Apply the bag directly to the skin without a cover.", "Leave the ice bag in place continuously for 4 hours.", "Fill the bag two-thirds full with small ice pieces and cover it before applying."], "answer": 3, "rationale": "The bag should be <strong>filled two-thirds full with small ice chips</strong> (to allow it to mold to the body), <strong>covered with a cloth</strong> to protect the skin, and applied. Overfilling makes it rigid and heavy. Direct contact causes thermal damage. It should be applied for only <strong>15–20 minutes</strong>, then removed for an hour to prevent rebound vasodilation."},
+  {"n": 79, "topic": "Warm Soak Temperature", "type": "single", "text": "The provider orders a warm soak for a patient's lower leg wound. What is the physiologically effective and comfortable water temperature range for a warm soak?", "options": ["93° to 99°F (34° to 37°C)", "105° to 109°F (40.5° to 43°C)", "110° to 115°F (43° to 46°C)", "60° to 70°F (15° to 21°C)"], "answer": 1, "rationale": "The accepted physiologically effective and comfortable temperature range for a <strong>warm soak (extremity) is 105° to 109°F (40.5° to 43°C)</strong>. 93° to 99°F = sitz bath temperature for perineal healing. Above 110°F can cause burns. 60°F = cold therapy range."},
+  {"n": 80, "topic": "Moist Cold Compress", "type": "single", "text": "A nurse is applying a moist cold compress to a patient's head. What is a key step in this specific application method?", "options": ["Wring the compress thoroughly before applying it.", "Place the compress in the freezer for 2 hours before application.", "Secure the compress tightly with a straight binder.", "Leave the compress in place until it becomes completely warm."], "answer": 0, "rationale": "The nurse must <strong>wring the compress thoroughly before applying</strong> to avoid dripping, which is uncomfortable and may wet the patient's clothing or linens. It is immersed in ice/water (not frozen solid). It does not need a tight binder, which could impede circulation. It is changed frequently (applied for 20 minutes maximum), not left until completely warm."}
+];
+
+const letters = ['A','B','C','D','E'];
+let currentQ = 0, score = 0, answered = false, userAnswers = [];
+let selectedSingle = null;
+let selectedMulti = new Set();
+
+function loadQuestion() {
+  const q = questions[currentQ];
+  answered = false;
+  selectedSingle = null;
+  selectedMulti = new Set();
+
+  document.getElementById('q-num-label').textContent = 'Question ' + q.n;
+  document.getElementById('q-topic-label').textContent = q.topic || '';
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('q-counter').textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+  document.getElementById('progress-bar').style.width = (currentQ / questions.length * 100) + '%';
+  document.getElementById('rationale-box').classList.remove('show');
+  document.getElementById('submit-btn').style.display = 'inline-block';
+  document.getElementById('next-btn').style.display = 'none';
+
+  const sataBadge = document.getElementById('sata-badge');
+  sataBadge.style.display = q.type === 'sata' ? 'inline-block' : 'none';
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="option-icon">${letters[i]}</span><span class="option-text">${opt}</span>`;
+    btn.addEventListener('click', () => selectOpt(i, btn, q.type));
+    container.appendChild(btn);
+  });
+}
+
+function selectOpt(index, btn, type) {
+  if (answered) return;
+  const allBtns = document.querySelectorAll('.option');
+  if (type === 'single') {
+    selectedSingle = index;
+    allBtns.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  } else {
+    if (selectedMulti.has(index)) {
+      selectedMulti.delete(index);
+      btn.classList.remove('selected');
+    } else {
+      selectedMulti.add(index);
+      btn.classList.add('selected');
+    }
+  }
+}
+
+function submitAnswer() {
+  if (answered) return;
+  const q = questions[currentQ];
+
+  let isCorrect = false;
+  if (q.type === 'single') {
+    if (selectedSingle === null) return;
+    isCorrect = selectedSingle === q.answer;
+  } else {
+    if (selectedMulti.size === 0) return;
+    const correct = new Set(q.answer);
+    isCorrect = selectedMulti.size === correct.size && [...selectedMulti].every(i => correct.has(i));
+  }
+
+  answered = true;
+  if (isCorrect) score++;
+  userAnswers.push({ selected: q.type === 'single' ? selectedSingle : [...selectedMulti], correct: q.answer, isCorrect, type: q.type });
+  document.getElementById('live-score').textContent = score;
+
+  const allBtns = document.querySelectorAll('.option');
+  allBtns.forEach((el, i) => {
+    el.classList.add('locked');
+    el.classList.remove('selected');
+    const correctArr = Array.isArray(q.answer) ? q.answer : [q.answer];
+    const selectedArr = q.type === 'single' ? [selectedSingle] : [...selectedMulti];
+    if (correctArr.includes(i) && selectedArr.includes(i)) {
+      el.classList.add('correct');
+      el.querySelector('.option-icon').textContent = '✓';
+    } else if (!correctArr.includes(i) && selectedArr.includes(i)) {
+      el.classList.add('wrong');
+      el.querySelector('.option-icon').textContent = '✗';
+    } else if (correctArr.includes(i) && !selectedArr.includes(i)) {
+      el.classList.add('missed');
+      el.querySelector('.option-icon').textContent = '✓';
+    }
+  });
+
+  // Show rationale always
+  document.getElementById('rationale-text').innerHTML = q.rationale;
+  document.getElementById('rationale-box').classList.add('show');
+  document.getElementById('submit-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+  document.getElementById('next-btn').textContent = currentQ === questions.length - 1 ? 'View Results →' : 'Next →';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) { showResults(); return; }
+  loadQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showResults() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('results-screen').classList.add('active');
+  document.getElementById('progress-bar').style.width = '100%';
+  const pct = Math.round((score / questions.length) * 100);
+  const passed = pct >= 70;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-sub').textContent = 'You got ' + score + ' out of ' + questions.length + ' correct';
+  document.getElementById('res-correct').textContent = score;
+  document.getElementById('res-wrong').textContent = questions.length - score;
+  document.getElementById('pass-fail-badge').innerHTML =
+    `<span style="display:inline-block;margin-bottom:20px;padding:6px 20px;border-radius:999px;font-weight:700;font-size:0.85rem;background:${passed?'var(--correct-bg)':'var(--wrong-bg)'};color:${passed?'var(--correct-text)':'var(--wrong-text)'};">${passed?'✓ Passing':'✗ Needs Review'}</span>`;
+  const reviewHtml = questions.map((q, i) => {
+    const ua = userAnswers[i];
+    const correctArr = Array.isArray(ua.correct) ? ua.correct : [ua.correct];
+    const selectedArr = Array.isArray(ua.selected) ? ua.selected : [ua.selected];
+    return `<div class="review-item ${ua.isCorrect?'r-correct':'r-wrong'}">
+      <div class="review-q"><strong>Q${q.n} · ${q.topic}</strong></div>
+      <div class="review-q">${q.text.substring(0,110)}…</div>
+      <div style="margin-top:5px;font-size:0.76rem;">
+        <span style="margin-right:8px;">Your answer: ${selectedArr.map(x=>letters[x]).join(', ')}</span>
+        ${!ua.isCorrect?`<span style="color:var(--correct-text);">Correct: ${correctArr.map(x=>letters[x]).join(', ')}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('review-section').innerHTML = `<h3 class="review-title">Question Review</h3>${reviewHtml}`;
+}
+
+function restartQuiz() {
+  currentQ = 0; score = 0; answered = false; userAnswers = [];
+  selectedSingle = null; selectedMulti = new Set();
+  document.getElementById('live-score').textContent = '0';
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('results-screen').classList.remove('active');
+  document.getElementById('quiz-screen').style.display = 'block';
+  loadQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+loadQuestion();
+</script>
+</body>
+</html>
